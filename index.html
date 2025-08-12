@@ -1642,10 +1642,10 @@
                 }));
 
                 showNotification('Login successful!', 'success');
-                // setTimeout(() => {
-                //     window.location.reload();
-                //     loadDashboard();
-                // }, 500);
+                 setTimeout(() => {
+                     window.location.reload();
+                     loadDashboard();
+                 }, 500);
             } catch (error) {
                 console.error('Login error:', error);
                 showNotification(error.message || 'Login failed', 'error');
