@@ -1,0 +1,2976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomStats - Football Scouting Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge.available {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .badge.busy {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+
+        .badge.urgent {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .player-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .rating-stars {
+            color: #ffd700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .ai-insights {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .ai-insights h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-insights .insight-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .formation-pitch {
+            width: 300px;
+            height: 400px;
+            background: linear-gradient(to bottom, #2d5016 0%, #3a6b1f 100%);
+            border: 3px solid white;
+            border-radius: 10px;
+            position: relative;
+            margin: 1rem auto;
+        }
+
+        .formation-pitch::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .formation-pitch::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .player-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            border: 2px solid white;
+            transition: all 0.3s ease;
+        }
+
+        .player-dot:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .home-player {
+            background: #ff8c00;
+        }
+
+        .away-player {
+            background: #fffacd;
+            color: #333;
+        }
+
+        .goalkeeper {
+            background: #ffd700;
+            color: #333;
+        }
+
+        .analysis-sliders {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider-label {
+            width: 150px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .analysis-slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .analysis-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8c00;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .analysis-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff8c00;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-value {
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #ff8c00;
+        }
+
+        .formation-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .formation-tab {
+            flex: 1;
+            padding: 0.5rem;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .formation-tab.active {
+            background: #ff8c00;
+            color: white;
+        }
+
+        .qr-code {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            margin: 0.5rem auto;
+        }
+
+        .match-analysis-modal .modal-content {
+            max-width: 1000px;
+            max-height: 90vh;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .quick-notes {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .quick-notes textarea {
+            width: 100%;
+            min-height: 100px;
+            border: none;
+            background: transparent;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 3000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* confirm ui style */
+
+        .confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* darker shadow background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .confirm-box {
+            background-color: #f3e6ff;
+            /* light purple */
+            padding: 20px 25px;
+            border-radius: 12px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .confirm-box h2 {
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            color: #5b2c91;
+        }
+
+        .confirm-box p {
+            font-size: 0.95em;
+            color: #444;
+            margin-bottom: 15px;
+        }
+
+        .confirm-box input[type="email"],
+        .confirm-box input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .confirm-box button {
+            flex: 1;
+            background-color: #7d3cff;
+            /* purple button */
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s ease;
+        }
+
+        .confirm-box button:hover {
+            background-color: #692fc5;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .formation-pitch {
+                width: 250px;
+                height: 320px;
+            }
+
+            .slider-label {
+                width: 120px;
+                font-size: 0.9rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1418.0.min.js"></script>
+    <script src="https://unpkg.com/aws-amplify@4.3.21/dist/aws-amplify.min.js"></script>
+</head>
+
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">📊 BoomStats</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('dashboard')" class="nav-link active">Dashboard</a></li>
+                <li><a href="#" onclick="showPage('players')" class="nav-link">Players</a></li>
+                <li><a href="#" onclick="showPage('scouts')" class="nav-link">Scouts</a></li>
+                <li><a href="#" onclick="showPage('reports')" class="nav-link">Reports</a></li>
+                <li><a href="#" onclick="showPage('analytics')" class="nav-link">Analytics</a></li>
+                <li><a href="#" onclick="showPage('teams')" class="nav-link">Teams</a></li>
+                <li><a href="#" onclick="logout()" class="nav-link">logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="page-header">
+                <h1 class="page-title">Dashboard</h1>
+                <button class="btn" onclick="openModal('uploadModal')">📤 Upload Data</button>
+            </div>
+
+            <div class="stats grid-4">
+                <div class="stat">
+                    <div class="stat-value">1,247</div>
+                    <div class="stat-label">Total Players</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">89</div>
+                    <div class="stat-label">Active Scouts</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Recent Reports</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">Club Contacts</div>
+                </div>
+            </div>
+
+            <div class="ai-insights">
+                <h3>🤖 AI Scout Insights</h3>
+                <div class="insight-item">
+                    <strong>Top Emerging Talent:</strong> Marcus Silva (19, Forward) shows exceptional potential with
+                    94% shot accuracy and 87% dribble success rate in recent matches.
+                </div>
+                <div class="insight-item">
+                    <strong>Market Opportunity:</strong> Defenders aged 22-25 are currently undervalued in your region.
+                    Consider focusing scouting efforts on this demographic.
+                </div>
+                <div class="insight-item">
+                    <strong>Scout Performance:</strong> Alex Johnson has the highest success rate for identifying
+                    players who later get signed (78% accuracy over 6 months).
+                </div>
+                <button class="btn btn-secondary" onclick="generateAIInsights()">Generate New Insights</button>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Scout Requests</h3>
+                        <span class="badge urgent">5 Urgent</span>
+                    </div>
+                    <div id="scoutRequests">
+                        <!-- Content populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Available Scouts</h3>
+                        <span class="badge available">23 Available</span>
+                    </div>
+                    <div id="availableScouts">
+                        <!-- Content populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Page -->
+        <div id="players" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Players Database</h1>
+                <button class="btn" onclick="openModal('addPlayerModal')">➕ Add Player</button>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search players..." id="playerSearch">
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterPlayers('all')">All</button>
+                    <button class="filter-btn" onclick="filterPlayers('goalkeeper')">Goalkeepers</button>
+                    <button class="filter-btn" onclick="filterPlayers('defender')">Defenders</button>
+                    <button class="filter-btn" onclick="filterPlayers('midfielder')">Midfielders</button>
+                    <button class="filter-btn" onclick="filterPlayers('forward')">Forwards</button>
+                </div>
+            </div>
+
+            <div id="playersGrid" class="grid grid-3">
+                <!-- Players will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Scouts Page -->
+        <div id="scouts" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Scout Network</h1>
+                <button class="btn" onclick="openModal('inviteScoutModal')">👥 Invite Scout</button>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="card-title">Ecosystem Scouts</h3>
+                    <div id="ecosystemScouts">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Independent Scouts</h3>
+                    <div id="independentScouts">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3 class="card-title">Scout Requests & Communications</h3>
+                <div id="scoutCommunications">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div id="reports" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Scouting Reports</h1>
+                <button class="btn" onclick="openModal('createReportModal')">📝 Create Report</button>
+            </div>
+
+            <div class="grid grid-2">
+                <div id="reportsGrid">
+                    <!-- Reports populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Analytics Dashboard</h1>
+                <button class="btn" onclick="generateAnalytics()">🔄 Refresh Data</button>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 class="card-title">Player Performance Trends</h3>
+                    <div id="performanceChart"
+                        style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                        <div>📊 Performance analytics visualization would appear here</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Scout Success Rates</h3>
+                    <div id="scoutChart"
+                        style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 10px;">
+                        <div>📈 Scout performance metrics would appear here</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-insights" style="margin-top: 2rem;">
+                <h3>📊 Analytics AI Insights</h3>
+                <div id="analyticsInsights">
+                    <div class="insight-item">
+                        <strong>Player Value Prediction:</strong> Based on current performance data, 23 players in your
+                        database are projected to increase in value by 20%+ over the next 6 months.
+                    </div>
+                    <div class="insight-item">
+                        <strong>Position Analysis:</strong> Your database shows a 15% shortage of quality left-backs
+                        compared to market demand. This presents a significant opportunity.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teams Page -->
+        <div id="teams" class="page">
+            <div class="page-header">
+                <h1 class="page-title">Teams & Clubs</h1>
+                <button class="btn" onclick="openModal('addTeamModal')">🏟️ Add Team</button>
+            </div>
+
+            <div id="teamsGrid" class="grid grid-3">
+                <!-- Teams populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('uploadModal')">&times;</span>
+            <h2>Upload Player Data</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label>Upload Type</label>
+                    <select id="uploadType" onchange="toggleUploadFields()">
+                        <option value="video">Video Analysis</option>
+                        <option value="data">Performance Data</option>
+                        <option value="both">Video + Data</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="playerSelectGroup">
+                    <label>Select Player</label>
+                    <select id="playerSelect">
+                        <option value="">Select a player...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="videoUploadGroup">
+                    <label>Video Files</label>
+                    <div class="file-upload" onclick="document.getElementById('videoFiles').click()">
+                        <p>📹 Click to upload video files or drag and drop</p>
+                        <input type="file" id="videoFiles" multiple accept="video/*" style="display: none;"
+                            onchange="handleVideoUpload()">
+                        <div id="videoFileList"></div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="dataUploadGroup">
+                    <label>Performance Data</label>
+                    <div class="file-upload" onclick="document.getElementById('dataFiles').click()">
+                        <p>📊 Click to upload data files (CSV, JSON, Excel)</p>
+                        <input type="file" id="dataFiles" multiple accept=".csv,.json,.xlsx,.xls" style="display: none;"
+                            onchange="handleDataUpload()">
+                        <div id="dataFileList"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Match Information</label>
+                    <input type="text" placeholder="Match details (e.g., vs Arsenal, Premier League, 2024-08-07)">
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea placeholder="Additional notes about this upload..."></textarea>
+                </div>
+
+                <button type="button" class="btn" onclick="processUpload()">Upload & Process</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Player Modal -->
+    <div id="addPlayerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addPlayerModal')">&times;</span>
+            <h2>Add New Player</h2>
+            <form id="addPlayerForm">
+                <div class="form-group">
+                    <label>Player Name</label>
+                    <input type="text" id="playerName" required>
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="playerAge" min="16" max="45" required>
+                </div>
+                <div class="form-group">
+                    <label>Position</label>
+                    <select id="playerPosition" required>
+                        <option value="">Select position...</option>
+                        <option value="goalkeeper">Goalkeeper</option>
+                        <option value="defender">Defender</option>
+                        <option value="midfielder">Midfielder</option>
+                        <option value="forward">Forward</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Current Club</label>
+                    <input type="text" id="playerClub">
+                </div>
+                <div class="form-group">
+                    <label>Market Value (£)</label>
+                    <input type="number" id="playerValue">
+                </div>
+                <div class="form-group">
+                    <label>Nationality</label>
+                    <input type="text" id="playerNationality">
+                </div>
+                <button type="button" class="btn" onclick="addPlayer()">Add Player</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invite Scout Modal -->
+    <div id="inviteScoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('inviteScoutModal')">&times;</span>
+            <h2>Invite Scout to Network</h2>
+            <form id="inviteScoutForm">
+                <div class="form-group">
+                    <label>Scout Name</label>
+                    <input type="text" id="scoutName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="scoutEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <select id="scoutSpecialization">
+                        <option value="youth">Youth Development</option>
+                        <option value="senior">Senior Players</option>
+                        <option value="regional">Regional Expert</option>
+                        <option value="position">Position Specialist</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" onclick="inviteScout()">Send Invitation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Report Modal -->
+    <div id="createReportModal" class="modal match-analysis-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('createReportModal')">&times;</span>
+            <h2>📋 Create Match Analysis Report</h2>
+
+            <div class="analysis-grid">
+                <!-- Left Side - Formation and Pitch -->
+                <div>
+                    <h3>Match Details</h3>
+                    <div class="form-group">
+                        <label>Player</label>
+                        <select id="reportPlayer" required>
+                            <option value="">Select player...</option>
+                        </select>
+                    </div>
+
+                    <div class="formation-tabs">
+                        <button type="button" class="formation-tab active"
+                            onclick="switchFormationView('home')">HOME</button>
+                        <button type="button" class="formation-tab" onclick="switchFormationView('away')">AWAY</button>
+                    </div>
+
+                    <!-- Football Pitch with Formation -->
+                    <div class="formation-pitch" id="formationPitch">
+                        <!-- Home Formation (4-4-2) -->
+                        <div class="player-dot home-player goalkeeper"
+                            style="bottom: 10px; left: 50%; transform: translateX(-50%);">GK</div>
+                        <div class="player-dot home-player" style="bottom: 80px; left: 20%;">2</div>
+                        <div class="player-dot home-player" style="bottom: 80px; left: 40%;">5</div>
+                        <div class="player-dot home-player" style="bottom: 80px; left: 60%;">6</div>
+                        <div class="player-dot home-player" style="bottom: 80px; left: 80%;">3</div>
+
+                        <div class="player-dot home-player" style="bottom: 180px; left: 20%;">7</div>
+                        <div class="player-dot home-player" style="bottom: 180px; left: 40%;">4</div>
+                        <div class="player-dot home-player" style="bottom: 180px; left: 60%;">8</div>
+                        <div class="player-dot home-player" style="bottom: 180px; left: 80%;">11</div>
+
+                        <div class="player-dot home-player" style="bottom: 280px; left: 35%;">9</div>
+                        <div class="player-dot home-player" style="bottom: 280px; left: 65%;">10</div>
+
+                        <!-- Away Formation (4-3-3) - Initially hidden -->
+                        <div class="player-dot away-player goalkeeper"
+                            style="top: 10px; left: 50%; transform: translateX(-50%); display: none;">GK</div>
+                        <div class="player-dot away-player" style="top: 80px; left: 20%; display: none;">2</div>
+                        <div class="player-dot away-player" style="top: 80px; left: 40%; display: none;">5</div>
+                        <div class="player-dot away-player" style="top: 80px; left: 60%; display: none;">6</div>
+                        <div class="player-dot away-player" style="top: 80px; left: 80%; display: none;">3</div>
+
+                        <div class="player-dot away-player" style="top: 180px; left: 30%; display: none;">4</div>
+                        <div class="player-dot away-player" style="top: 180px; left: 50%; display: none;">8</div>
+                        <div class="player-dot away-player" style="top: 180px; left: 70%; display: none;">6</div>
+
+                        <div class="player-dot away-player" style="top: 280px; left: 25%; display: none;">7</div>
+                        <div class="player-dot away-player" style="top: 280px; left: 50%; display: none;">9</div>
+                        <div class="player-dot away-player" style="top: 280px; left: 75%; display: none;">11</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Formation Analysis</label>
+                        <select id="formationDropdown">
+                            <option value="">Select formation...</option>
+                            <option value="4-4-2">4-4-2 (Current)</option>
+                            <option value="4-3-3">4-3-3</option>
+                            <option value="4-2-3-1">4-2-3-1</option>
+                            <option value="3-5-2">3-5-2</option>
+                            <option value="5-3-2">5-3-2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Right Side - Analysis Sliders -->
+                <div>
+                    <h3>Performance Analysis</h3>
+                    <div class="analysis-sliders">
+                        <div class="slider-group">
+                            <label class="slider-label">Decision making</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="70"
+                                id="decisionMaking">
+                            <span class="slider-value">70</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Leadership</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="75" id="leadership">
+                            <span class="slider-value">75</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Off the ball</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="85" id="offTheBall">
+                            <span class="slider-value">85</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Tactical awareness</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="80"
+                                id="tacticalAwareness">
+                            <span class="slider-value">80</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Defense</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="60" id="defense">
+                            <span class="slider-value">60</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Offence</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="78" id="offence">
+                            <span class="slider-value">78</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Behaviour</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="88" id="behaviour">
+                            <span class="slider-value">88</span>
+                        </div>
+
+                        <div class="slider-group">
+                            <label class="slider-label">Transition</label>
+                            <input type="range" class="analysis-slider" min="0" max="100" value="72" id="transition">
+                            <span class="slider-value">72</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-notes">
+                        <h4>📝 Quick Notes</h4>
+                        <textarea placeholder="Add your match observations and notes here..."
+                            id="quickNotes"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Team Sheet Notes</label>
+                <textarea rows="3" placeholder="Team formation, key tactical points, substitutions..."
+                    id="teamSheetNotes"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: space-between; margin-top: 2rem;">
+                <div>
+                    <label style="font-weight: 600;">Overall Rating</label>
+                    <select id="overallRating">
+                        <option value="5">⭐⭐⭐⭐⭐ Exceptional (90-100)</option>
+                        <option value="4">⭐⭐⭐⭐ Very Good (80-89)</option>
+                        <option value="3" selected>⭐⭐⭐ Good (70-79)</option>
+                        <option value="2">⭐⭐ Average (60-69)</option>
+                        <option value="1">⭐ Poor (0-59)</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" class="btn" onclick="createAdvancedReport()">💾 SAVE REPORT</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()"
+                        style="margin-left: 0.5rem;">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Team Modal -->
+    <div id="addTeamModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addTeamModal')">&times;</span>
+            <h2>Add Team/Club</h2>
+            <form id="addTeamForm">
+                <div class="form-group">
+                    <label>Club Name</label>
+                    <input type="text" id="teamName" required>
+                </div>
+                <div class="form-group">
+                    <label>League</label>
+                    <input type="text" id="teamLeague">
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" id="teamCountry">
+                </div>
+                <div class="form-group">
+                    <label>Club Type</label>
+                    <select id="teamType">
+                        <option value="professional">Professional</option>
+                        <option value="semi-professional">Semi-Professional</option>
+                        <option value="amateur">Amateur</option>
+                        <option value="academy">Academy</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" onclick="addTeam()">Add Team</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global state management
+
+        let notifications = [];
+        let activeConnections = [];
+
+        // Dummy data
+        const players = [
+            {
+                id: 1,
+                name: "Marcus Silva",
+                age: 19,
+                position: "forward",
+                club: "Real Madrid B",
+                nationality: "Brazil",
+                value: 2500000,
+                rating: 4.8,
+                stats: { pace: 92, shooting: 88, passing: 76, dribbling: 91, defending: 45, physical: 78 },
+                recentForm: "excellent",
+                videos: ["match_vs_barcelona.mp4", "training_session_1.mp4"],
+                reports: 12,
+                lastUpdated: "2024-08-05"
+            },
+            {
+                id: 2,
+                name: "Emma Rodriguez",
+                age: 22,
+                position: "midfielder",
+                club: "Barcelona Femení",
+                nationality: "Spain",
+                value: 1800000,
+                rating: 4.6,
+                stats: { pace: 78, shooting: 82, passing: 94, dribbling: 86, defending: 67, physical: 71 },
+                recentForm: "good",
+                videos: ["match_vs_real.mp4"],
+                reports: 8,
+                lastUpdated: "2024-08-03"
+            },
+            {
+                id: 3,
+                name: "James Thompson",
+                age: 24,
+                position: "defender",
+                club: "Manchester United",
+                nationality: "England",
+                value: 4200000,
+                rating: 4.7,
+                stats: { pace: 74, shooting: 45, passing: 88, dribbling: 69, defending: 93, physical: 89 },
+                recentForm: "excellent",
+                videos: ["champions_league_final.mp4"],
+                reports: 15,
+                lastUpdated: "2024-08-07"
+            },
+            {
+                id: 4,
+                name: "Sofia Andersson",
+                age: 20,
+                position: "goalkeeper",
+                club: "Ajax Women",
+                nationality: "Sweden",
+                value: 950000,
+                rating: 4.4,
+                stats: { pace: 65, shooting: 35, passing: 78, dribbling: 52, defending: 89, physical: 82 },
+                recentForm: "good",
+                videos: ["penalty_saves.mp4"],
+                reports: 6,
+                lastUpdated: "2024-08-01"
+            }
+        ];
+
+        const scouts = [
+            {
+                id: 'scout001',
+                name: 'Sarah Martinez',
+                type: 'ecosystem',
+                specialization: 'European Specialist',
+                rating: 5,
+                reports: 156,
+                status: 'available',
+                contactable: true,
+                location: 'Madrid, Spain',
+                languages: ['Spanish', 'English', 'Portuguese'],
+                successRate: 78
+            },
+            {
+                id: 'scout002',
+                name: 'James Wilson',
+                type: 'ecosystem',
+                specialization: 'Youth Development Expert',
+                rating: 4,
+                reports: 89,
+                status: 'busy',
+                contactable: true,
+                location: 'London, UK',
+                languages: ['English', 'French'],
+                successRate: 72
+            },
+            {
+                id: 'scout003',
+                name: 'Maria Santos',
+                type: 'independent',
+                specialization: 'South American Networks',
+                rating: 4.8,
+                reports: 234,
+                status: 'available',
+                contactable: true,
+                location: 'São Paulo, Brazil',
+                languages: ['Portuguese', 'Spanish', 'English'],
+                successRate: 84,
+                openToContact: true
+            },
+            {
+                id: 'scout004',
+                name: 'Hans Mueller',
+                type: 'independent',
+                specialization: 'Bundesliga Expert',
+                rating: 4.3,
+                reports: 167,
+                status: 'available',
+                contactable: false,
+                location: 'Munich, Germany',
+                languages: ['German', 'English'],
+                successRate: 75,
+                openToContact: false
+            }
+        ];
+
+        let reports = [
+            {
+                id: 'rpt001',
+                playerId: 1,
+                playerName: 'Marcus Silva',
+                scoutId: 'scout001',
+                scoutName: 'Sarah Martinez',
+                date: '2024-08-05',
+                rating: 4.8,
+                summary: 'Exceptional young talent with incredible pace and dribbling ability. Shows maturity beyond his years.',
+                recommendation: 'immediate_sign',
+                matchContext: 'Real Madrid B vs Barcelona B, Liga de Reservas',
+                keyStats: { goals: 2, assists: 1, keyPasses: 8, dribbleSuccess: 91 },
+                promoted: false,
+                detailedAnalysis: {
+                    decisionMaking: 85,
+                    leadership: 78,
+                    tacticalAwareness: 82,
+                    offTheBall: 88,
+                    defense: 45,
+                    offence: 91,
+                    behaviour: 92,
+                    transition: 79,
+                    quickNotes: "Outstanding work rate and never-give-up attitude. Great communication with teammates.",
+                    formation: "4-4-2",
+                    teamSheetNotes: "Played as right winger, made several key runs behind defense"
+                }
+            },
+            {
+                id: 'rpt002',
+                playerId: 2,
+                playerName: 'Emma Rodriguez',
+                scoutId: 'scout003',
+                scoutName: 'Maria Santos',
+                date: '2024-08-03',
+                rating: 4.6,
+                summary: 'Outstanding midfielder with exceptional passing range and vision. Leadership qualities evident.',
+                recommendation: 'monitor_closely',
+                matchContext: 'Barcelona Femení vs Real Madrid Femenino, El Clasico',
+                keyStats: { passes: 89, passAccuracy: 94, keyPasses: 12, tackles: 6 },
+                promoted: true
+            }
+        ];
+
+        const teams = [
+            {
+                id: 'team001',
+                name: 'Manchester United',
+                league: 'Premier League',
+                country: 'England',
+                type: 'professional',
+                scoutingBudget: '£50M',
+                currentNeeds: ['midfielder', 'defender'],
+                activeRequests: 3
+            },
+            {
+                id: 'team002',
+                name: 'Real Madrid',
+                league: 'La Liga',
+                country: 'Spain',
+                type: 'professional',
+                scoutingBudget: '£75M',
+                currentNeeds: ['forward', 'midfielder'],
+                activeRequests: 5
+            },
+            {
+                id: 'team003',
+                name: 'Arsenal',
+                league: 'Premier League',
+                country: 'England',
+                type: 'professional',
+                scoutingBudget: '£35M',
+                currentNeeds: ['defender', 'goalkeeper'],
+                activeRequests: 2
+            }
+        ];
+
+        const clubRequests = [
+            {
+                id: 'req001',
+                clubId: 'team001',
+                clubName: 'Manchester United',
+                position: 'midfielder',
+                ageRange: '20-24',
+                budget: '£50M',
+                deadline: '2024-08-10',
+                priority: 'urgent',
+                requirements: ['Premier League experience preferred', 'Strong passing ability', 'Leadership qualities'],
+                assignedScouts: [],
+                status: 'open'
+            },
+            {
+                id: 'req002',
+                clubId: 'team003',
+                clubName: 'Arsenal',
+                position: 'defender',
+                ageRange: '18-22',
+                budget: '£30M',
+                deadline: '2024-08-12',
+                priority: 'high',
+                requirements: ['Left-footed preferred', 'Pace essential', 'Good in the air'],
+                assignedScouts: ['scout001'],
+                status: 'in_progress'
+            }
+        ];
+
+        const AWS_CONFIG = {
+            region: 'us-east-2', // Replace with your region
+            userPoolId: 'us-east-2_WkI8yf7d5',
+            userPoolWebClientId: '9mt8an8c22pkm5ovahqntq6r',
+            apiEndpoint: 'https://fnh8nq5lb3.execute-api.us-east-2.amazonaws.com/dev'
+        };
+
+        // const poolData = {
+        //     UserPoolId: 'us-east-2_WkI8yf7d5', // Your User Pool ID
+        //     ClientId: '9mt8an8c22pkm5ovahqntq6r' // Your App Client ID
+        // };
+
+        // const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        // AWS.config.region = 'us-east-2';
+
+        // Current user state
+        let currentUser = null;
+        let authToken = null;
+
+        // Initialize authentication
+        function initAuth() {
+            const token = localStorage.getItem('authToken');
+            const userData = localStorage.getItem('userData');
+
+            if (token && userData) {
+                authToken = token;
+                currentUser = JSON.parse(userData);
+                showMainApp();
+            } else {
+                showLoginForm();
+            }
+        }
+
+        function showLoginForm() {
+            document.body.innerHTML = `
+        <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div style="position:relative; background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #333;">Welcome to BoomStats</h2>
+                
+                <div id="loginForm" display = "block">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email:</label>
+                        <input type="email" id="loginEmail" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Password:</label>
+                        <input type="password" id="loginPassword" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <button onclick="login()" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">Login</button>
+                    <button onclick="showSignupForm()" style="width: 100%; background: transparent; color: #667eea; border: 2px solid #667eea; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Sign Up</button>
+                </div>
+                
+                <div id="signupForm" style="display: none;">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name:</label>
+                        <input type="text" id="signupName" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email:</label>
+                        <input type="email" id="signupEmail" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Password:</label>
+                        <input type="password" id="signupPassword" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">User Type:</label>
+                        <select id="userType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                            <option value="player">Player</option>
+                            <option value="independent_scout">Independent Scout</option>
+                            <option value="club">Club</option>
+                        </select>
+                    </div>
+                    <div id="clubField" style="margin-bottom: 1.5rem; display: none;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Club Name:</label>
+                        <input type="text" id="clubName" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                    </div>
+                    <button onclick="signup()" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">Create Account</button>
+                    <button onclick="showLoginForm()" style="width: 100%; background: transparent; color: #667eea; border: 2px solid #667eea; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer;">Back to Login</button>
+                </div>
+                <div id="confirmModal" class="confirm-overlay" style="display:none;">
+                    <div class="confirm-box">
+                        <h2>Email Confirmation</h2>
+                        <p>Please enter the confirmation code sent to your email.</p>
+                        <input type="email" id="confirmEmail" readonly />
+                        <input class = "confirmCode" type="text" id="confirmCode"/>
+                        <div class="button-group">
+                            <button class = "confirmSend"onclick="confirmSignup()">Send Confirmation</button>
+                            <button class = "resendCode"  type="button" onclick="resendConfirmationCode()">Resend Code</button>
+                        </div>    
+                    </div>    
+                </div>
+            </div>
+        </div>
+    `;
+
+            // Show club field when club is selected
+            document.getElementById('userType').addEventListener('change', function () {
+                const clubField = document.getElementById('clubField');
+                if (this.value === 'club') {
+                    clubField.style.display = 'block';
+                } else {
+                    clubField.style.display = 'none';
+                }
+            });
+        }
+
+        // API Helper functions
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const Amplify = window.aws_amplify;
+            Amplify.default.configure({
+                Auth: {
+                    region: AWS_CONFIG.region,
+                    userPoolId: AWS_CONFIG.userPoolId,
+                    userPoolWebClientId: AWS_CONFIG.userPoolWebClientId
+                }
+            });
+            const session = await Amplify.default.Auth.currentSession();
+            const token = session.getAccessToken().getJwtToken();
+            console.log(token, "DSF", authToken)
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': authToken ? `Bearer ${authToken}` : undefined
+            };
+
+            const response = await fetch(`${AWS_CONFIG.apiEndpoint}${endpoint}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : undefined
+            });
+
+            if (!response.ok) {
+                throw new Error(`API call failed: ${response.statusText}`);
+            }
+
+            return response.json();
+        }
+
+        // Authentication functions
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const Amplify = window.aws_amplify;
+            if (!email || !password) {
+                showNotification('Please enter email and password', 'error');
+                return;
+            }
+
+            try {
+                Amplify.default.configure({
+                    Auth: {
+                        region: AWS_CONFIG.region,
+                        userPoolId: AWS_CONFIG.userPoolId,
+                        userPoolWebClientId: AWS_CONFIG.userPoolWebClientId
+                    }
+                });
+
+                const user = await Amplify.default.Auth.signIn(email, password);
+                console.log('Login success:', user);
+
+                // Retrieve the JWT token
+                const session = await Amplify.default.Auth.currentSession();
+                const idToken = session.getIdToken().getJwtToken();
+                console.log("idToken", idToken)
+                localStorage.setItem('authToken', idToken);
+                localStorage.setItem('userData', JSON.stringify({
+                    username: user.username,
+                    attributes: user.attributes
+                }));
+
+                showNotification('Login successful!', 'success');
+                // setTimeout(() => {
+                //     window.location.reload();
+                //     loadDashboard();
+                // }, 500);
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification(error.message || 'Login failed', 'error');
+            }
+
+        }
+
+        async function signup() {
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const userType = document.getElementById('userType').value;
+            let club_name;
+            if(userType == "club"){
+                club_name = document.getElementById("clubName").value;
+            }
+            else{
+                club_name = undefined
+            }
+
+            const Amplify = window.aws_amplify;
+            if (!name || !email || !password) {
+                showNotification('Please enter name, email and password', 'error');
+                return;
+            }
+            console.log("userinfo", email, name, password)
+            try {
+                Amplify.default.configure({
+                    Auth: {
+                        region: AWS_CONFIG.region,
+                        userPoolId: AWS_CONFIG.userPoolId,
+                        userPoolWebClientId: AWS_CONFIG.userPoolWebClientId
+                    }
+                });
+
+                const attributes = {
+                    email: email,
+                    name:name,
+                    'custom:user_type':userType,
+                };
+
+                if (userType === 'club' && club_name) {
+                    attributes['custom:club_id'] = club_name;
+                }
+                console.log("attributes", attributes)
+                const result = await Amplify.default.Auth.signUp({
+                    username: email,
+                    password: password,
+                    attributes: attributes
+                });
+                const confirmModal = document.getElementById('confirmModal');
+                if (result) {
+                    const confirmEmail = document.getElementById('confirmEmail');
+                    if (confirmEmail) confirmEmail.value = email;
+                    confirmModal.style.display = 'flex';
+                }
+
+                console.log('Signup success:', result);
+                showNotification('Account created successfully! Please check your email for verification.', 'success');
+            } catch (error) {
+                console.error('Signup error:', error);
+                showNotification(error.message || 'Signup failed', 'error');
+            }
+        }
+
+        function showMainApp() {
+
+            // Show your existing app HTML here
+            // You can reload the page or dynamically insert the main app HTML
+            // location.reload(); // Simple approach - reload to show main app
+        }
+
+        function showSignupForm() {
+            document.getElementById('loginForm').style.display = "none";
+            document.getElementById('signupForm').style.display = "block";
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
+            authToken = null;
+            currentUser = null;
+            showLoginForm();
+        }
+
+        // Add this function for file uploads
+        async function uploadFile(file, playerId = null) {
+            try {
+                // Get presigned URL from API
+                console.log("file", file);
+                const response = await apiCall('/api/upload-url', 'POST', {
+                    fileName: file.name,
+                    contentType: file.type,
+                    playerId: playerId
+                });
+                console.log("response", response)
+                // Upload file to S3
+                const uploadResponse = await fetch(response.uploadUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                });
+
+                if (uploadResponse.ok) {
+                    return response.fileKey;
+                } else {
+                    throw new Error('Upload failed');
+                }
+            } catch (error) {
+                showNotification('File upload failed: ' + error.message, 'error');
+                throw error;
+            }
+        }
+
+        // Update your existing upload functions to use this
+        async function handleVideoUpload() {
+            const files = document.getElementById('videoFiles').files;
+            const fileList = document.getElementById('videoFileList');
+
+            if (files.length === 0) return;
+
+            try {
+                const uploadPromises = Array.from(files).map(file => uploadFile(file));
+                const fileKeys = await Promise.all(uploadPromises);
+
+                // Update UI
+                let listHtml = '<div style="margin-top: 1rem;"><strong>Uploaded Videos:</strong><ul>';
+                fileKeys.forEach((key, index) => {
+                    listHtml += `<li>${files[index].name} ✓ Uploaded</li>`;
+                });
+                listHtml += '</ul></div>';
+                fileList.innerHTML = listHtml;
+
+                showNotification('All videos uploaded successfully!', 'success');
+            } catch (error) {
+                showNotification('Upload failed: ' + error.message, 'error');
+            }
+        }
+
+        // Core page navigation functionality
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+
+            // Load page-specific content
+            switch (pageId) {
+                case 'players':
+                    loadPlayers();
+                    break;
+                case 'scouts':
+                    loadScouts();
+                    break;
+                case 'reports':
+                    loadReports();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+                case 'teams':
+                    loadTeams();
+                    break;
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+            }
+        }
+
+        // Modal management
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+
+                // Initialize modal-specific content
+                if (modalId === 'createReportModal') {
+                    updatePlayerDropdowns();
+                    initializeSliders();
+                }
+                if (modalId === 'uploadModal') {
+                    updatePlayerDropdowns();
+                    toggleUploadFields();
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Update player dropdowns
+        function updatePlayerDropdowns() {
+            const playerSelects = ['playerSelect', 'reportPlayer'];
+            playerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.innerHTML = '<option value="">Select a player...</option>';
+                    players.forEach(player => {
+                        const option = document.createElement('option');
+                        option.value = player.id;
+                        option.textContent = `${player.name} (${player.position})`;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        // Load dashboard content
+        function 
+        loadDashboard() {
+            const requestsContainer = document.getElementById('scoutRequests');
+            if (requestsContainer) {
+                requestsContainer.innerHTML = clubRequests.map(request => `
+                    <div class="request-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div><strong>${request.clubName}</strong> - ${request.position}, ${request.ageRange} years</div>
+                        <div style="color: #666; font-size: 0.9rem;">Deadline: ${request.deadline} | Budget: ${request.budget}</div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="acceptRequest('${request.id}')">Accept</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; margin-left: 0.5rem;" onclick="viewRequestDetails('${request.id}')">Details</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const scoutsContainer = document.getElementById('availableScouts');
+            if (scoutsContainer) {
+                const availableScouts = scouts.filter(scout => scout.status === 'available');
+                scoutsContainer.innerHTML = availableScouts.map(scout => `
+                    <div class="scout-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div><strong>${scout.name}</strong> - ${scout.specialization}</div>
+                        <div style="color: #666; font-size: 0.9rem;">Rating: ${'⭐'.repeat(scout.rating)} | ${scout.reports} successful reports</div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="contactScout('${scout.id}')">Contact</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; margin-left: 0.5rem;" onclick="assignToRequest('${scout.id}')">Assign to Request</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Load players page
+        async function loadPlayers() {
+
+            try {
+                const response = await apiCall('/api/players');
+                const players = response.players;
+
+                // Your existing player rendering code here
+                // Just replace the dummy players array with the API response
+                const playersGrid = document.getElementById('playersGrid');
+                if (playersGrid) {
+                    playersGrid.innerHTML = players.map(player => `
+                    <div class="card" data-position="${player.position}">
+                        <div class="card-header">
+                            <h3 class="card-title">${player.name}</h3>
+                            <span class="badge">${player.position}</span>
+                        </div>
+                        <div>
+                            <p><strong>Age:</strong> ${player.age} | <strong>Club:</strong> ${player.club}</p>
+                            <p><strong>Nationality:</strong> ${player.nationality} | <strong>Value:</strong> £${(player.value / 1000000).toFixed(1)}M</p>
+                            <div class="player-rating">
+                                <span class="rating-stars">${'⭐'.repeat(Math.floor(player.rating))}</span>
+                                <span>${player.rating}/5</span>
+                            </div>
+                            <div style="margin: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                                    <span>Pace:</span>
+                                    <div class="progress-bar" style="width: 100px;">
+                                        <div class="progress-fill" style="width: ${player.stats.pace}%"></div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                                    <span>Shooting:</span>
+                                    <div class="progress-bar" style="width: 100px;">
+                                        <div class="progress-fill" style="width: ${player.stats.shooting}%"></div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                                    <span>Passing:</span>
+                                    <div class="progress-bar" style="width: 100px;">
+                                        <div class="progress-fill" style="width: ${player.stats.passing}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="qr-code">
+                                <div style="font-size: 8px; line-height: 1;">
+                                    ▓▓▓▓▓▓▓<br>
+                                    ▓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▓<br>
+                                    ▓&nbsp;▓▓▓&nbsp;▓<br>
+                                    ▓&nbsp;▓▓▓&nbsp;▓<br>
+                                    ▓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▓<br>
+                                    ▓▓▓▓▓▓▓<br>
+                                    ID:${player.id}
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 1rem;">
+                                <button class="btn" style="padding: 6px 12px; font-size: 0.8rem; margin-right: 0.5rem;" onclick="viewPlayer(${player.id})">View Details</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="promotePlayer(${player.id})">Promote to Clubs</button>
+                            </div>
+                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">
+                                Last updated: ${player.lastUpdated} | ${player.reports} reports
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                }
+                initializeSearch();
+
+            } catch (error) {
+                showNotification('Failed to load players: ' + error.message, 'error');
+            }
+
+        }
+
+        // Load scouts page
+        function loadScouts() {
+            const ecosystemScouts = scouts.filter(scout => scout.type === 'ecosystem');
+            const ecosystemContainer = document.getElementById('ecosystemScouts');
+            if (ecosystemContainer) {
+                ecosystemContainer.innerHTML = ecosystemScouts.map(scout => `
+                    <div class="scout-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${scout.name}</strong>
+                                <span class="badge ${scout.status === 'available' ? 'available' : 'busy'}">${scout.status}</span>
+                            </div>
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem; margin: 0.5rem 0;">
+                            ${scout.specialization} | ${scout.location}
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem;">
+                            Success Rate: ${scout.successRate}% | Languages: ${scout.languages.join(', ')}
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="requestScoutingTask('${scout.id}')">Request Task</button>
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; margin-left: 0.5rem;" onclick="viewScoutProfile('${scout.id}')">View Profile</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const independentScouts = scouts.filter(scout => scout.type === 'independent');
+            const independentContainer = document.getElementById('independentScouts');
+            if (independentContainer) {
+                independentContainer.innerHTML = independentScouts.map(scout => `
+                    <div class="scout-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${scout.name}</strong>
+                                ${scout.openToContact ? '<span class="badge available">Open to Contact</span>' : '<span class="badge busy">Not Available</span>'}
+                            </div>
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem; margin: 0.5rem 0;">
+                            ${scout.specialization} | ${scout.location}
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem;">
+                            Success Rate: ${scout.successRate}% | Rating: ${'⭐'.repeat(Math.floor(scout.rating))}
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            ${scout.openToContact ?
+                        `<button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="contactIndependentScout('${scout.id}')">Contact for Work</button>` :
+                        `<button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" disabled>Not Available</button>`
+                    }
+                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; margin-left: 0.5rem;" onclick="viewScoutProfile('${scout.id}')">View Profile</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const communicationsContainer = document.getElementById('scoutCommunications');
+            if (communicationsContainer) {
+                communicationsContainer.innerHTML = `
+                    <div class="communication-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div><strong>Request from Manchester United</strong> - Midfielder scouting</div>
+                        <div style="color: #666; font-size: 0.9rem;">Sent to: Sarah Martinez, James Wilson | Status: Pending Response</div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Follow Up</button>
+                        </div>
+                    </div>
+                    <div class="communication-item" style="padding: 1rem 0; border-bottom: 1px solid #eee;">
+                        <div><strong>Independent Scout Response</strong> - Maria Santos</div>
+                        <div style="color: #666; font-size: 0.9rem;">Available for South American player scouting | Response received 2 hours ago</div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Respond</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Load reports
+        function loadReports() {
+            const reportsGrid = document.getElementById('reportsGrid');
+            if (reportsGrid) {
+                reportsGrid.innerHTML = reports.map(report => `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">${report.playerName}</h3>
+                            <span class="badge ${report.promoted ? 'available' : ''}">${report.promoted ? 'Promoted' : 'Draft'}</span>
+                        </div>
+                        <div>
+                            <p><strong>Scout:</strong> ${report.scoutName}</p>
+                            <p><strong>Date:</strong> ${report.date}</p>
+                            <p><strong>Analysis:</strong> ${report.matchContext}</p>
+                            <div class="player-rating" style="margin: 1rem 0;">
+                                <span class="rating-stars">${'⭐'.repeat(Math.floor(report.rating))}</span>
+                                <span>${report.rating}/5</span>
+                            </div>
+                            <p style="margin: 1rem 0; font-size: 0.9rem;">${report.summary.substring(0, 150)}${report.summary.length > 150 ? '...' : ''}</p>
+                            
+                            ${report.detailedAnalysis ? `
+                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                <strong>Performance Analysis:</strong><br>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; font-size: 0.8rem;">
+                                    <div>Decision Making: ${report.detailedAnalysis.decisionMaking}/100</div>
+                                    <div>Leadership: ${report.detailedAnalysis.leadership}/100</div>
+                                    <div>Tactical Awareness: ${report.detailedAnalysis.tacticalAwareness}/100</div>
+                                    <div>Off the Ball: ${report.detailedAnalysis.offTheBall}/100</div>
+                                </div>
+                            </div>
+                            ` : `
+                            <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                                <strong>Key Stats:</strong><br>
+                                ${Object.entries(report.keyStats).map(([key, value]) =>
+                    `${key}: ${value}`
+                ).join(' | ')}
+                            </div>
+                            `}
+                            
+                            <div style="margin-top: 1rem;">
+                                <button class="btn" style="padding: 6px 12px; font-size: 0.8rem; margin-right: 0.5rem;" onclick="viewFullReport('${report.id}')">View Full Report</button>
+                                ${!report.promoted ?
+                        `<button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="promoteReportToClubs('${report.id}')">Promote to Clubs</button>` :
+                        `<span style="color: #4ecdc4; font-weight: bold;">✓ Promoted to Clubs</span>`
+                    }
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Load analytics
+        function loadAnalytics() {
+            const analyticsInsights = document.getElementById('analyticsInsights');
+            if (analyticsInsights) {
+                analyticsInsights.innerHTML = `
+                    <div class="insight-item">
+                        <strong>Player Value Prediction:</strong> Marcus Silva shows 87% probability of 25%+ value increase within 6 months based on performance trajectory and market comparisons.
+                    </div>
+                    <div class="insight-item">
+                        <strong>Scout Efficiency Analysis:</strong> Sarah Martinez has 15% higher success rate when scouting in European leagues vs. other regions. Consider leveraging this specialization.
+                    </div>
+                    <div class="insight-item">
+                        <strong>Market Gap Analysis:</strong> Current database shows 23% shortage of quality left-backs aged 20-24 compared to club demand patterns.
+                    </div>
+                    <div class="insight-item">
+                        <strong>Trending Positions:</strong> Defensive midfielders with passing accuracy >90% are currently undervalued by 18% compared to similar attacking players.
+                    </div>
+                `;
+            }
+        }
+
+        // Load teams
+        function loadTeams() {
+            const teamsGrid = document.getElementById('teamsGrid');
+            if (teamsGrid) {
+                teamsGrid.innerHTML = teams.map(team => `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">${team.name}</h3>
+                            <span class="badge">${team.type}</span>
+                        </div>
+                        <div>
+                            <p><strong>League:</strong> ${team.league}</p>
+                            <p><strong>Country:</strong> ${team.country}</p>
+                            <p><strong>Scouting Budget:</strong> ${team.scoutingBudget}</p>
+                            <div style="margin: 1rem 0;">
+                                <strong>Current Needs:</strong>
+                                <div style="margin-top: 0.5rem;">
+                                    ${team.currentNeeds.map(need => `<span class="badge" style="margin-right: 0.5rem;">${need}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <button class="btn" style="padding: 6px 12px; font-size: 0.8rem; margin-right: 0.5rem;" onclick="viewTeamRequests('${team.id}')">View Requests (${team.activeRequests})</button>
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="contactTeam('${team.id}')">Contact</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Slider functionality
+        function initializeSliders() {
+            const sliders = document.querySelectorAll('.analysis-slider');
+            sliders.forEach(slider => {
+                const valueSpan = slider.parentElement.querySelector('.slider-value');
+
+                slider.addEventListener('input', function () {
+                    valueSpan.textContent = this.value;
+                    updateSliderBackground(this);
+                });
+
+                updateSliderBackground(slider);
+            });
+        }
+
+        function updateSliderBackground(slider) {
+            const percentage = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = `linear-gradient(to right, #ff8c00 0%, #ff8c00 ${percentage}%, #e0e0e0 ${percentage}%, #e0e0e0 100%)`;
+        }
+
+        // Formation switching
+        function switchFormationView(team) {
+            const homePlayers = document.querySelectorAll('.home-player');
+            const awayPlayers = document.querySelectorAll('.away-player');
+            const tabs = document.querySelectorAll('.formation-tab');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (team === 'home') {
+                homePlayers.forEach(player => player.style.display = 'flex');
+                awayPlayers.forEach(player => player.style.display = 'none');
+            } else {
+                homePlayers.forEach(player => player.style.display = 'none');
+                awayPlayers.forEach(player => player.style.display = 'flex');
+            }
+        }
+
+        // Upload functionality
+        function toggleUploadFields() {
+            const uploadType = document.getElementById('uploadType').value;
+            const videoGroup = document.getElementById('videoUploadGroup');
+            const dataGroup = document.getElementById('dataUploadGroup');
+
+            if (videoGroup) videoGroup.style.display = (uploadType === 'video' || uploadType === 'both') ? 'block' : 'none';
+            if (dataGroup) dataGroup.style.display = (uploadType === 'data' || uploadType === 'both') ? 'block' : 'none';
+        }
+
+        // function handleVideoUpload() {
+        //     const files = document.getElementById('videoFiles').files;
+        //     const fileList = document.getElementById('videoFileList');
+
+        //     if (fileList) {
+        //         let listHtml = '<div style="margin-top: 1rem;"><strong>Selected Videos:</strong><ul>';
+        //         for (let i = 0; i < files.length; i++) {
+        //             listHtml += `<li>${files[i].name} (${(files[i].size / (1024 * 1024)).toFixed(2)} MB)</li>`;
+        //         }
+        //         listHtml += '</ul></div>';
+        //         fileList.innerHTML = listHtml;
+        //     }
+        // }
+
+        function handleDataUpload() {
+            const files = document.getElementById('dataFiles').files;
+            const fileList = document.getElementById('dataFileList');
+
+            if (fileList) {
+                let listHtml = '<div style="margin-top: 1rem;"><strong>Selected Data Files:</strong><ul>';
+                for (let i = 0; i < files.length; i++) {
+                    listHtml += `<li>${files[i].name} (${(files[i].size / 1024).toFixed(2)} KB)</li>`;
+                }
+                listHtml += '</ul></div>';
+                fileList.innerHTML = listHtml;
+            }
+        }
+
+        function processUpload() {
+            const uploadType = document.getElementById('uploadType').value;
+            const playerId = document.getElementById('playerSelect').value;
+
+            if (!playerId) {
+                showNotification('Please select a player first', 'error');
+                return;
+            }
+
+            const player = players.find(p => p.id == playerId);
+            if (!player) {
+                showNotification('Player not found', 'error');
+                return;
+            }
+
+            showNotification('Processing upload... This may take a few minutes.', 'info');
+
+            setTimeout(() => {
+                player.lastUpdated = new Date().toISOString().split('T')[0];
+
+                if (uploadType === 'video' || uploadType === 'both') {
+                    const videoFiles = document.getElementById('videoFiles').files;
+                    for (let i = 0; i < videoFiles.length; i++) {
+                        player.videos.push(videoFiles[i].name);
+                    }
+                }
+
+                if (uploadType === 'data' || uploadType === 'both') {
+                    player.rating = Math.min(5, player.rating + (Math.random() * 0.2));
+                    const statKeys = Object.keys(player.stats);
+                    const randomStat = statKeys[Math.floor(Math.random() * statKeys.length)];
+                    player.stats[randomStat] = Math.min(99, player.stats[randomStat] + Math.floor(Math.random() * 3));
+                }
+
+                closeModal('uploadModal');
+                showNotification(`Upload completed successfully! ${player.name}'s data has been updated.`, 'success');
+
+                document.getElementById('uploadForm').reset();
+                document.getElementById('videoFileList').innerHTML = '';
+                document.getElementById('dataFileList').innerHTML = '';
+
+                if (document.getElementById('players').classList.contains('active')) {
+                    loadPlayers();
+                }
+            }, 2000);
+        }
+
+        // Player management
+        async function addPlayer() {
+            try {
+            const playerData = {
+                name: document.getElementById('playerName').value,
+                age: parseInt(document.getElementById('playerAge').value),
+                position: document.getElementById('playerPosition').value,
+                club: document.getElementById('playerClub').value,
+                value: parseInt(document.getElementById('playerValue').value) || 0,
+                nationality: document.getElementById('playerNationality').value
+            };
+
+            if (!playerData.name || !playerData.age || !playerData.position) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const newPlayer = {
+                ...playerData,
+                rating: Math.random() * 2 + 3,
+                stats: generatePlayerStats(playerData.position),
+                recentForm: 'unknown',
+                videos: [],
+                reports: 0,
+                lastUpdated: new Date().toISOString().split('T')[0]
+            };
+
+            // players.push(newPlayer);
+            const response = await apiCall('/api/players', "POST", newPlayer )
+            console.log("response", response);
+            if(response.playerId){
+                closeModal('addPlayerModal');
+                showNotification(`${playerData.name} added successfully!`, 'success');
+                document.getElementById('addPlayerForm').reset();
+
+                updatePlayerDropdowns();
+
+                if (document.getElementById('players').classList.contains('active')) {
+                    loadPlayers();
+                }
+            }
+                else{
+                    console.log("ddd")
+                    throw new Error(`create_player failed`)
+                }
+            } 
+            catch(error){
+                showNotification(error.message, 'error');
+            }
+        }
+
+        function generatePlayerStats(position) {
+            const baseStats = {
+                pace: Math.floor(Math.random() * 30) + 60,
+                shooting: Math.floor(Math.random() * 30) + 40,
+                passing: Math.floor(Math.random() * 30) + 50,
+                dribbling: Math.floor(Math.random() * 30) + 50,
+                defending: Math.floor(Math.random() * 30) + 40,
+                physical: Math.floor(Math.random() * 30) + 60
+            };
+
+            switch (position) {
+                case 'goalkeeper':
+                    baseStats.defending += 20;
+                    baseStats.shooting -= 20;
+                    baseStats.dribbling -= 15;
+                    break;
+                case 'defender':
+                    baseStats.defending += 15;
+                    baseStats.physical += 10;
+                    baseStats.shooting -= 10;
+                    break;
+                case 'midfielder':
+                    baseStats.passing += 15;
+                    baseStats.dribbling += 10;
+                    break;
+                case 'forward':
+                    baseStats.shooting += 15;
+                    baseStats.pace += 10;
+                    baseStats.defending -= 15;
+                    break;
+            }
+
+            Object.keys(baseStats).forEach(key => {
+                baseStats[key] = Math.max(20, Math.min(99, baseStats[key]));
+            });
+
+            return baseStats;
+        }
+
+        // Scout management
+        function inviteScout() {
+            const scoutData = {
+                name: document.getElementById('scoutName').value,
+                email: document.getElementById('scoutEmail').value,
+                specialization: document.getElementById('scoutSpecialization').value
+            };
+
+            if (!scoutData.name || !scoutData.email) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            closeModal('inviteScoutModal');
+            showNotification(`Invitation sent to ${scoutData.name} successfully!`, 'success');
+            document.getElementById('inviteScoutForm').reset();
+        }
+
+        // Team management
+        function addTeam() {
+            const teamData = {
+                name: document.getElementById('teamName').value,
+                league: document.getElementById('teamLeague').value,
+                country: document.getElementById('teamCountry').value,
+                type: document.getElementById('teamType').value
+            };
+
+            if (!teamData.name) {
+                showNotification('Please enter team name', 'error');
+                return;
+            }
+
+            const newTeam = {
+                ...teamData,
+                id: `team${teams.length + 1}`,
+                scoutingBudget: '£25M',
+                currentNeeds: ['midfielder'],
+                activeRequests: 0
+            };
+
+            teams.push(newTeam);
+            closeModal('addTeamModal');
+            showNotification(`${teamData.name} added successfully!`, 'success');
+            document.getElementById('addTeamForm').reset();
+
+            if (document.getElementById('teams').classList.contains('active')) {
+                loadTeams();
+            }
+        }
+
+        // Report creation
+        function createAdvancedReport() {
+            const playerId = document.getElementById('reportPlayer').value;
+            const formationAnalysis = document.getElementById('formationDropdown').value;
+            const quickNotes = document.getElementById('quickNotes').value;
+            const teamSheetNotes = document.getElementById('teamSheetNotes').value;
+            const overallRating = document.getElementById('overallRating').value;
+
+            if (!playerId) {
+                showNotification('Please select a player first', 'error');
+                return;
+            }
+
+            const detailedAnalysis = {
+                decisionMaking: parseInt(document.getElementById('decisionMaking').value),
+                leadership: parseInt(document.getElementById('leadership').value),
+                offTheBall: parseInt(document.getElementById('offTheBall').value),
+                tacticalAwareness: parseInt(document.getElementById('tacticalAwareness').value),
+                defense: parseInt(document.getElementById('defense').value),
+                offence: parseInt(document.getElementById('offence').value),
+                behaviour: parseInt(document.getElementById('behaviour').value),
+                transition: parseInt(document.getElementById('transition').value),
+                formation: formationAnalysis,
+                quickNotes: quickNotes,
+                teamSheetNotes: teamSheetNotes
+            };
+
+            const player = players.find(p => p.id == playerId);
+            const newReport = {
+                id: `rpt${Date.now()}`,
+                playerId: parseInt(playerId),
+                playerName: player.name,
+                scoutId: currentUser.id,
+                scoutName: currentUser.name,
+                date: new Date().toISOString().split('T')[0],
+                rating: parseFloat(overallRating),
+                summary: `Comprehensive analysis of ${player.name} created through advanced scouting interface.`,
+                recommendation: overallRating >= 4 ? 'immediate_sign' : overallRating >= 3 ? 'monitor_closely' : 'not_recommended',
+                matchContext: 'Match analysis via BoomStats platform',
+                detailedAnalysis: detailedAnalysis,
+                promoted: false
+            };
+
+            reports.unshift(newReport);
+            closeModal('createReportModal');
+            showNotification('Advanced scouting report created successfully!', 'success');
+
+            resetForm();
+
+            if (document.getElementById('reports').classList.contains('active')) {
+                loadReports();
+            }
+        }
+
+        function resetForm() {
+            const defaultValues = {
+                decisionMaking: 70,
+                leadership: 75,
+                offTheBall: 85,
+                tacticalAwareness: 80,
+                defense: 60,
+                offence: 78,
+                behaviour: 88,
+                transition: 72
+            };
+
+            Object.entries(defaultValues).forEach(([id, value]) => {
+                const slider = document.getElementById(id);
+                if (slider) {
+                    const valueSpan = slider.parentElement.querySelector('.slider-value');
+                    slider.value = value;
+                    if (valueSpan) valueSpan.textContent = value;
+                    updateSliderBackground(slider);
+                }
+            });
+
+            const tabs = document.querySelectorAll('.formation-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            if (tabs[0]) tabs[0].classList.add('active');
+            switchFormationView('home');
+
+            ['reportPlayer', 'formationDropdown', 'quickNotes', 'teamSheetNotes'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+
+            const overallRating = document.getElementById('overallRating');
+            if (overallRating) overallRating.value = '3';
+        }
+
+        // Search functionality
+        function initializeSearch() {
+            const searchInput = document.getElementById('playerSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const cards = document.querySelectorAll('#playersGrid .card');
+
+                    cards.forEach(card => {
+                        const playerName = card.querySelector('.card-title').textContent.toLowerCase();
+                        const playerDetails = card.textContent.toLowerCase();
+
+                        if (playerName.includes(searchTerm) || playerDetails.includes(searchTerm)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+        // Filter functionality
+        function filterPlayers(position) {
+            const cards = document.querySelectorAll('#playersGrid .card');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                if (position === 'all' || card.dataset.position === position) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Action functions
+        function acceptRequest(requestId) {
+            const request = clubRequests.find(r => r.id === requestId);
+            if (request) {
+                request.status = 'accepted';
+                request.assignedScouts.push(currentUser.id);
+                showNotification(`Accepted scouting request from ${request.clubName}`, 'success');
+                loadDashboard();
+            }
+        }
+
+        function contactScout(scoutId) {
+            const scout = scouts.find(s => s.id === scoutId);
+            if (scout) {
+                showNotification(`Contacting ${scout.name} for available scouting opportunities`, 'info');
+            }
+        }
+
+        function requestScoutingTask(scoutId) {
+            const scout = scouts.find(s => s.id === scoutId);
+            if (scout && scout.status === 'available') {
+                showNotification(`Scouting task requested from ${scout.name}`, 'success');
+                scout.status = 'busy';
+                loadScouts();
+            }
+        }
+
+        function contactIndependentScout(scoutId) {
+            const scout = scouts.find(s => s.id === scoutId);
+            if (scout && scout.openToContact) {
+                showNotification(`Contact request sent to ${scout.name}`, 'success');
+            }
+        }
+
+        function promotePlayer(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                showNotification(`${player.name} promoted to club networks for potential interest`, 'success');
+            }
+        }
+
+        function promoteReportToClubs(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (report) {
+                report.promoted = true;
+                showNotification(`Report for ${report.playerName} promoted to relevant clubs`, 'success');
+                loadReports();
+            }
+        }
+
+        function viewFullReport(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 900px;">
+                    <span class="close" onclick="this.parentElement.parentElement.remove()">&times;</span>
+                    <h2>📋 Complete Scouting Report - ${report.playerName}</h2>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h3>Basic Information</h3>
+                            <p><strong>Scout:</strong> ${report.scoutName}</p>
+                            <p><strong>Date:</strong> ${report.date}</p>
+                            <p><strong>Rating:</strong> ${'⭐'.repeat(Math.floor(report.rating))} (${report.rating}/5)</p>
+                            <p><strong>Recommendation:</strong> ${report.recommendation.replace('_', ' ').toUpperCase()}</p>
+                            
+                            <h3 style="margin-top: 2rem;">Summary</h3>
+                            <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">${report.summary}</p>
+                            
+                            ${report.detailedAnalysis?.quickNotes ? `
+                            <h3 style="margin-top: 2rem;">Scout Notes</h3>
+                            <p style="background: #fff3cd; padding: 1rem; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                ${report.detailedAnalysis.quickNotes}
+                            </p>
+                            ` : ''}
+                        </div>
+                        
+                        <div>
+                            ${report.detailedAnalysis ? `
+                            <h3>Detailed Performance Analysis</h3>
+                            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                ${[
+                        ['Decision Making', 'decisionMaking'],
+                        ['Leadership', 'leadership'],
+                        ['Off the Ball', 'offTheBall'],
+                        ['Tactical Awareness', 'tacticalAwareness'],
+                        ['Defense', 'defense'],
+                        ['Offence', 'offence'],
+                        ['Behaviour', 'behaviour'],
+                        ['Transition', 'transition']
+                    ].map(([label, key]) => `
+                                    <div style="margin: 1rem 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                            <span style="font-weight: 600;">${label}</span>
+                                            <span style="font-weight: bold; color: #ff8c00;">${report.detailedAnalysis[key]}/100</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${report.detailedAnalysis[key]}%"></div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ` : `
+                            <h3>Key Statistics</h3>
+                            <div style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                ${Object.entries(report.keyStats).map(([key, value]) => `
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0;">
+                                        <span style="font-weight: 600;">${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</span>
+                                        <span style="color: #ff8c00; font-weight: bold;">${value}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            `}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; text-align: center;">
+                        ${!report.promoted ?
+                    `<button class="btn" onclick="promoteReportToClubs('${report.id}'); this.parentElement.parentElement.parentElement.remove();">Promote to Clubs</button>` :
+                    `<span style="color: #4ecdc4; font-weight: bold; font-size: 1.2rem;">✓ Already Promoted to Clubs</span>`
+                }
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function generateAIInsights() {
+            const insights = [
+                {
+                    title: "Emerging Talent Alert",
+                    content: `${players[Math.floor(Math.random() * players.length)].name} shows exceptional improvement trajectory. 89% probability of significant value increase within 3 months.`
+                },
+                {
+                    title: "Market Opportunity",
+                    content: `Analysis of ${players.length} players reveals 15% undervaluation in ${['defenders', 'midfielders', 'forwards'][Math.floor(Math.random() * 3)]} aged 20-23 in current market conditions.`
+                },
+                {
+                    title: "Scout Efficiency",
+                    content: `${scouts[Math.floor(Math.random() * scouts.length)].name} demonstrates 23% higher accuracy when scouting players in their specialization region.`
+                },
+                {
+                    title: "Position Analysis",
+                    content: `Current club requests show 340% higher demand for central defenders compared to last quarter. Consider focusing recruitment efforts.`
+                },
+                {
+                    title: "Statistical Insight",
+                    content: `Players with passing accuracy >85% show 67% correlation with successful contract negotiations within 6 months of first scout report.`
+                }
+            ];
+
+            const randomInsights = insights.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            const insightsContainer = document.querySelector('.ai-insights');
+            const existingInsights = insightsContainer.querySelectorAll('.insight-item');
+            existingInsights.forEach(item => item.remove());
+
+            randomInsights.forEach(insight => {
+                const insightElement = document.createElement('div');
+                insightElement.className = 'insight-item';
+                insightElement.innerHTML = `<strong>${insight.title}:</strong> ${insight.content}`;
+                insightsContainer.insertBefore(insightElement, insightsContainer.querySelector('.btn'));
+            });
+
+            showNotification('AI insights updated with latest analysis', 'success');
+        }
+
+        function generateAnalytics() {
+            showNotification('Analytics data refreshed with latest performance metrics', 'success');
+        }
+
+        // Placeholder functions for other interactions
+        function viewPlayer(playerId) {
+            const player = players.find(p => p.id === playerId);
+            if (player) {
+                showNotification(`Viewing detailed profile for ${player.name}`, 'info');
+            }
+        }
+
+        function viewScoutProfile(scoutId) {
+            const scout = scouts.find(s => s.id === scoutId);
+            if (scout) {
+                showNotification(`Viewing profile for scout ${scout.name}`, 'info');
+            }
+        }
+
+        function viewRequestDetails(requestId) {
+            const request = clubRequests.find(r => r.id === requestId);
+            if (request) {
+                showNotification(`Viewing details for ${request.clubName} request`, 'info');
+            }
+        }
+
+        function assignToRequest(scoutId) {
+            const scout = scouts.find(s => s.id === scoutId);
+            if (scout) {
+                showNotification(`Assigning ${scout.name} to scouting request`, 'success');
+            }
+        }
+
+        function viewTeamRequests(teamId) {
+            const team = teams.find(t => t.id === teamId);
+            if (team) {
+                showNotification(`Viewing active requests from ${team.name}`, 'info');
+            }
+        }
+
+        function contactTeam(teamId) {
+            const team = teams.find(t => t.id === teamId);
+            if (team) {
+                showNotification(`Initiating contact with ${team.name}`, 'info');
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function () {
+            loadDashboard();
+            updatePlayerDropdowns();
+        });
+        // Initialize authentication when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            initAuth();
+        });
+
+        // Ensure confirmation section exists on page load
+        // document.addEventListener('DOMContentLoaded', function () {
+
+        //     if (!document.getElementById('confirmationSection')) {
+        //         const signupForm = document.getElementById('signupForm') || document.body;
+        //         const confirmationDiv = document.createElement('div');
+        //         confirmationDiv.id = 'confirmationSection';
+        //         confirmationDiv.style.display = 'none';
+        //         confirmationDiv.style.marginTop = '20px';
+        //         confirmationDiv.innerHTML = `
+        //     <h3>Confirm Your Account</h3>
+        //     <label for="confirmCode">Confirmation Code:</label>
+        //     <input type="text" id="confirmCode" placeholder="Enter the code from your email">
+        //     <button type="button" onclick="confirmSignup()">Confirm Signup</button>
+        //     <button type="button" onclick="resendConfirmationCode()">Resend Code</button>
+        //     `;
+        //         signupForm.insertAdjacentElement('afterend', confirmationDiv);
+        //     }
+
+        // });
+
+        async function confirmSignup() {
+            const email = document.getElementById('signupEmail').value.trim();
+            const code = document.getElementById('confirmCode').value.trim();
+            if (!email || !code) {
+                alert('Please enter email and confirmation code');
+                return;
+            }
+            const Amplify = window.aws_amplify;
+            try {
+                await Amplify.Auth.confirmSignUp(email, code);
+                alert('Account confirmed! You can now log in.');
+                if (typeof showLoginForm === 'function') showLoginForm();
+                login()
+            } catch (err) {
+                console.error('Confirm sign up error:', err);
+                alert(err.message || 'Confirmation failed');
+            }
+        }
+
+        async function resendConfirmationCode() {
+            const email = document.getElementById('signupEmail').value.trim();
+            if (!email) {
+                alert('Please enter your email to resend code');
+                return;
+            }
+            const Amplify = window.aws_amplify;
+            try {
+                await Amplify.Auth.resendSignUp(email);
+                alert('Confirmation code resent to ' + email);
+            } catch (err) {
+                console.error('Resend code error:', err);
+                alert(err.message || 'Resend failed');
+            }
+        }
+
+        // Hook into signup to show confirmation UI on success
+        // if (typeof window.signup === 'function') {
+        //     const origSignup = window.signup;
+        //     window.signup = async function () {
+        //         try {
+        //             const result = await origSignup.apply(this, arguments);
+        //             console.log('Signup result:', result);
+        //             const confirmationEl = document.getElementById('confirmationSection');
+        //             if (confirmationEl) confirmationEl.style.display = 'block';
+        //             return result;
+        //         } catch (err) {
+        //             throw err;
+        //         }
+        //     };
+        // }
+    </script>
+
+
+    <!-- Confirmation Code UI
+<div id="confirmationSection" style="display:none; margin-top:20px;">
+  <h3>Confirm Your Account</h3>
+  <label for="confirmCode">Confirmation Code:</label>
+  <input type="text" id="confirmCode" placeholder="Enter the code from your email">
+  <button type="button" onclick="confirmSignup()">Confirm Signup</button>
+  <button type="button" onclick="resendConfirmationCode()">Resend Code</button>
+</div>
+
+</body>
+
+
+<script>
+async function confirmSignup() {
+  const email = document.getElementById('signupEmail').value.trim();
+  const code = document.getElementById('confirmCode').value.trim();
+  if (!email || !code) {
+    alert('Please enter email and confirmation code');
+    return;
+  }
+  try {
+    await Amplify.Auth.confirmSignUp(email, code);
+    alert('Account confirmed! You can now log in.');
+  } catch (err) {
+    console.error('Confirm sign up error:', err);
+    alert(err.message || 'Confirmation failed');
+  }
+}
+
+async function resendConfirmationCode() {
+  const email = document.getElementById('signupEmail').value.trim();
+  if (!email) {
+    alert('Please enter your email to resend code');
+    return;
+  }
+  try {
+    await Amplify.Auth.resendSignUp(email);
+    alert('Confirmation code resent to ' + email);
+  } catch (err) {
+    console.error('Resend code error:', err);
+    alert(err.message || 'Resend failed');
+  }
+}
+
+</script>
+
+
+<script>
+async function confirmSignup() {
+  const email = document.getElementById('signupEmail').value.trim();
+  const code = document.getElementById('confirmCode').value.trim();
+  if (!email || !code) {
+    alert('Please enter email and confirmation code');
+    return;
+  }
+  try {
+    await Amplify.Auth.confirmSignUp(email, code);
+    alert('Account confirmed! You can now log in.');
+    // Optionally show login form here if exists
+    if (typeof showLoginForm === 'function') showLoginForm();
+  } catch (err) {
+    console.error('Confirm sign up error:', err);
+    alert(err.message || 'Confirmation failed');
+  }
+}
+
+async function resendConfirmationCode() {
+  const email = document.getElementById('signupEmail').value.trim();
+  if (!email) {
+    alert('Please enter your email to resend code');
+    return;
+  }
+  try {
+    await Amplify.Auth.resendSignUp(email);
+    alert('Confirmation code resent to ' + email);
+  } catch (err) {
+    console.error('Resend code error:', err);
+    alert(err.message || 'Resend failed');
+  }
+}
+
+// Hook into signup to show confirmation UI on success
+if (typeof window.signup === 'function') {
+  const origSignup = window.signup;
+  window.signup = async function() {
+    try {
+      const result = await origSignup.apply(this, arguments);
+      console.log('Signup result:', result);
+      // Only show confirmation section if signUp returns success
+      document.getElementById('confirmationSection').style.display = 'block';
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  };
+}
+</script> -->
+
+</html>
