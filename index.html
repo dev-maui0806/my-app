@@ -894,7 +894,7 @@
 
             <div class="ai-insights" style="margin-top: 2rem;">
                 <h3>📊 Analytics AI Insights</h3>
-                <div id="analyticsInsights">
+                <div id="analyticsInsights" class = "analyticsInsights">
                     <div class="insight-item">
                         <strong>Player Value Prediction:</strong> Based on current performance data, 23 players in your
                         database are projected to increase in value by 20%+ over the next 6 months.
@@ -1508,7 +1508,7 @@
             document.body.innerHTML = `
         <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
             <div style="position:relative; background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
-                <h2 style="text-align: center; margin-bottom: 2rem; color: #333;">Welcome to BoomStats</h2>
+                <img src = "./logo.jpg" alt = "logo" style = "position:relative; top:0px; margin:auto; width:200px; height:200px; left: 50%; transform: translateX(-50%);"/>
                 
                 <div id="loginForm" display = "block">
                     <div style="margin-bottom: 1rem;">
@@ -1642,10 +1642,10 @@
                 }));
 
                 showNotification('Login successful!', 'success');
-                 setTimeout(() => {
-                     window.location.reload();
-                     loadDashboard();
-                 }, 500);
+                // setTimeout(() => {
+                //     window.location.reload();
+                //     loadDashboard();
+                // }, 500);
             } catch (error) {
                 console.error('Login error:', error);
                 showNotification(error.message || 'Login failed', 'error');
@@ -1659,10 +1659,10 @@
             const password = document.getElementById('signupPassword').value;
             const userType = document.getElementById('userType').value;
             let club_name;
-            if(userType == "club"){
+            if (userType == "club") {
                 club_name = document.getElementById("clubName").value;
             }
-            else{
+            else {
                 club_name = undefined
             }
 
@@ -1683,8 +1683,8 @@
 
                 const attributes = {
                     email: email,
-                    name:name,
-                    'custom:user_type':userType,
+                    name: name,
+                    'custom:user_type': userType,
                 };
 
                 if (userType === 'club' && club_name) {
@@ -1885,8 +1885,8 @@
         }
 
         // Load dashboard content
-        function 
-        loadDashboard() {
+        function
+            loadDashboard() {
             const requestsContainer = document.getElementById('scoutRequests');
             if (requestsContainer) {
                 requestsContainer.innerHTML = clubRequests.map(request => `
@@ -2122,23 +2122,39 @@
         }
 
         // Load analytics
-        function loadAnalytics() {
+    async function loadAnalytics(){
+            
             const analyticsInsights = document.getElementById('analyticsInsights');
-            if (analyticsInsights) {
-                analyticsInsights.innerHTML = `
-                    <div class="insight-item">
-                        <strong>Player Value Prediction:</strong> Marcus Silva shows 87% probability of 25%+ value increase within 6 months based on performance trajectory and market comparisons.
-                    </div>
-                    <div class="insight-item">
-                        <strong>Scout Efficiency Analysis:</strong> Sarah Martinez has 15% higher success rate when scouting in European leagues vs. other regions. Consider leveraging this specialization.
-                    </div>
-                    <div class="insight-item">
-                        <strong>Market Gap Analysis:</strong> Current database shows 23% shortage of quality left-backs aged 20-24 compared to club demand patterns.
-                    </div>
-                    <div class="insight-item">
-                        <strong>Trending Positions:</strong> Defensive midfielders with passing accuracy >90% are currently undervalued by 18% compared to similar attacking players.
-                    </div>
-                `;
+            const InsightsData = await generateAIInsights("analytics")
+            console.log("analytics", InsightsData)
+            if (analyticsInsights && InsightsData) {
+
+                // const analyticsInsights = document.querySelector('.ai-insights');
+                const existingInsights = analyticsInsights.querySelectorAll('.insight-item');
+                existingInsights.forEach(item => item.remove());
+
+                InsightsData.insights.forEach(insight => {
+                    const insightElement = document.createElement('div');
+                    insightElement.className = 'insight-item';
+                    insightElement.innerHTML = `<strong>${insight.title}:</strong> ${insight.content}`;
+                    analyticsInsights.appendChild(insightElement);
+                });
+                
+                showNotification('AI insights updated successfully!', 'success');
+                // analyticsInsights.innerHTML = `
+                //     <div class="insight-item">
+                //         <strong>Player Value Prediction:</strong> Marcus Silva shows 87% probability of 25%+ value increase within 6 months based on performance trajectory and market comparisons.
+                //     </div>
+                //     <div class="insight-item">
+                //         <strong>Scout Efficiency Analysis:</strong> Sarah Martinez has 15% higher success rate when scouting in European leagues vs. other regions. Consider leveraging this specialization.
+                //     </div>
+                //     <div class="insight-item">
+                //         <strong>Market Gap Analysis:</strong> Current database shows 23% shortage of quality left-backs aged 20-24 compared to club demand patterns.
+                //     </div>
+                //     <div class="insight-item">
+                //         <strong>Trending Positions:</strong> Defensive midfielders with passing accuracy >90% are currently undervalued by 18% compared to similar attacking players.
+                //     </div>
+                // `;
             }
         }
 
@@ -2298,50 +2314,50 @@
         // Player management
         async function addPlayer() {
             try {
-            const playerData = {
-                name: document.getElementById('playerName').value,
-                age: parseInt(document.getElementById('playerAge').value),
-                position: document.getElementById('playerPosition').value,
-                club: document.getElementById('playerClub').value,
-                value: parseInt(document.getElementById('playerValue').value) || 0,
-                nationality: document.getElementById('playerNationality').value
-            };
+                const playerData = {
+                    name: document.getElementById('playerName').value,
+                    age: parseInt(document.getElementById('playerAge').value),
+                    position: document.getElementById('playerPosition').value,
+                    club: document.getElementById('playerClub').value,
+                    value: parseInt(document.getElementById('playerValue').value) || 0,
+                    nationality: document.getElementById('playerNationality').value
+                };
 
-            if (!playerData.name || !playerData.age || !playerData.position) {
-                showNotification('Please fill in all required fields', 'error');
-                return;
-            }
-
-            const newPlayer = {
-                ...playerData,
-                rating: Math.random() * 2 + 3,
-                stats: generatePlayerStats(playerData.position),
-                recentForm: 'unknown',
-                videos: [],
-                reports: 0,
-                lastUpdated: new Date().toISOString().split('T')[0]
-            };
-
-            // players.push(newPlayer);
-            const response = await apiCall('/api/players', "POST", newPlayer )
-            console.log("response", response);
-            if(response.playerId){
-                closeModal('addPlayerModal');
-                showNotification(`${playerData.name} added successfully!`, 'success');
-                document.getElementById('addPlayerForm').reset();
-
-                updatePlayerDropdowns();
-
-                if (document.getElementById('players').classList.contains('active')) {
-                    loadPlayers();
+                if (!playerData.name || !playerData.age || !playerData.position) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return;
                 }
-            }
-                else{
+
+                const newPlayer = {
+                    ...playerData,
+                    rating: Math.random() * 2 + 3,
+                    stats: generatePlayerStats(playerData.position),
+                    recentForm: 'unknown',
+                    videos: [],
+                    reports: 0,
+                    lastUpdated: new Date().toISOString().split('T')[0]
+                };
+
+                // players.push(newPlayer);
+                const response = await apiCall('/api/players', "POST", newPlayer)
+                console.log("response", response);
+                if (response.playerId) {
+                    closeModal('addPlayerModal');
+                    showNotification(`${playerData.name} added successfully!`, 'success');
+                    document.getElementById('addPlayerForm').reset();
+
+                    updatePlayerDropdowns();
+
+                    if (document.getElementById('players').classList.contains('active')) {
+                        loadPlayers();
+                    }
+                }
+                else {
                     console.log("ddd")
                     throw new Error(`create_player failed`)
                 }
-            } 
-            catch(error){
+            }
+            catch (error) {
                 showNotification(error.message, 'error');
             }
         }
@@ -2697,47 +2713,82 @@
             document.body.appendChild(modal);
         }
 
-        function generateAIInsights() {
-            const insights = [
-                {
-                    title: "Emerging Talent Alert",
-                    content: `${players[Math.floor(Math.random() * players.length)].name} shows exceptional improvement trajectory. 89% probability of significant value increase within 3 months.`
-                },
-                {
-                    title: "Market Opportunity",
-                    content: `Analysis of ${players.length} players reveals 15% undervaluation in ${['defenders', 'midfielders', 'forwards'][Math.floor(Math.random() * 3)]} aged 20-23 in current market conditions.`
-                },
-                {
-                    title: "Scout Efficiency",
-                    content: `${scouts[Math.floor(Math.random() * scouts.length)].name} demonstrates 23% higher accuracy when scouting players in their specialization region.`
-                },
-                {
-                    title: "Position Analysis",
-                    content: `Current club requests show 340% higher demand for central defenders compared to last quarter. Consider focusing recruitment efforts.`
-                },
-                {
-                    title: "Statistical Insight",
-                    content: `Players with passing accuracy >85% show 67% correlation with successful contract negotiations within 6 months of first scout report.`
+        async function generateAIInsights(param = "") {
+            try{
+            // const insights = [
+            //     {
+            //         title: "Emerging Talent Alert",
+            //         content: `${players[Math.floor(Math.random() * players.length)].name} shows exceptional improvement trajectory. 89% probability of significant value increase within 3 months.`
+            //     },
+            //     {
+            //         title: "Market Opportunity",
+            //         content: `Analysis of ${players.length} players reveals 15% undervaluation in ${['defenders', 'midfielders', 'forwards'][Math.floor(Math.random() * 3)]} aged 20-23 in current market conditions.`
+            //     },
+            //     {
+            //         title: "Scout Efficiency",
+            //         content: `${scouts[Math.floor(Math.random() * scouts.length)].name} demonstrates 23% higher accuracy when scouting players in their specialization region.`
+            //     },
+            //     {
+            //         title: "Position Analysis",
+            //         content: `Current club requests show 340% higher demand for central defenders compared to last quarter. Consider focusing recruitment efforts.`
+            //     },
+            //     {
+            //         title: "Statistical Insight",
+            //         content: `Players with passing accuracy >85% show 67% correlation with successful contract negotiations within 6 months of first scout report.`
+            //     }
+            // ];
+            const Amplify = window.aws_amplify;
+            Amplify.default.configure({
+                Auth: {
+                    region: AWS_CONFIG.region,
+                    userPoolId: AWS_CONFIG.userPoolId,
+                    userPoolWebClientId: AWS_CONFIG.userPoolWebClientId
                 }
-            ];
-
-            const randomInsights = insights.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-            const insightsContainer = document.querySelector('.ai-insights');
-            const existingInsights = insightsContainer.querySelectorAll('.insight-item');
-            existingInsights.forEach(item => item.remove());
-
-            randomInsights.forEach(insight => {
-                const insightElement = document.createElement('div');
-                insightElement.className = 'insight-item';
-                insightElement.innerHTML = `<strong>${insight.title}:</strong> ${insight.content}`;
-                insightsContainer.insertBefore(insightElement, insightsContainer.querySelector('.btn'));
             });
+            const session = await Amplify.default.Auth.currentSession();
+            const token = session.getAccessToken().getJwtToken();
+            console.log("ai-token", token)
+            const response = await fetch('https://5yuhji41bh.execute-api.us-east-2.amazonaws.com/prod/api/ai-insights', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token // if using Cognito
+                },
+                body: JSON.stringify({ action: 'generate_insights' })
+            });
+            console.log("ai-response", response)
+            const data = await response.json()
+            console.log("json", data.insights);
+            
+            
 
-            showNotification('AI insights updated with latest analysis', 'success');
+            if (data.insights) {
+                const insightsContainer = document.querySelector('.ai-insights');
+                const existingInsights = insightsContainer.querySelectorAll('.insight-item');
+                existingInsights.forEach(item => item.remove());
+
+                data.insights.forEach(insight => {
+                    const insightElement = document.createElement('div');
+                    insightElement.className = 'insight-item';
+                    insightElement.innerHTML = `<strong>${insight.title}:</strong> ${insight.content}`;
+                    insightsContainer.insertBefore(insightElement, insightsContainer.querySelector('.btn'));
+                });
+                showNotification('AI insights updated successfully!', 'success');
+            }
+
+            if(param == "analytics"){
+                return data;
+            }
+            }
+            catch(error){
+                showNotification('Failed to generate insights: ' + error.message, 'error');
+                // Fallback to your existing random insights
+                // generateFallbackInsights();
+            } 
         }
 
         function generateAnalytics() {
+            loadAnalytics()
             showNotification('Analytics data refreshed with latest performance metrics', 'success');
         }
 
