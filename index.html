@@ -2905,7 +2905,7 @@
             if (url.pathname.startsWith("/player/")) {
                 console.log("player path detected");
                 console.log("url pathname", url.pathname);
-                const playerId = url.pathname.split("/").pop();
+                const playerId = url.pathname.split("/")[2];
                 const token = url.searchParams.get("token")?.trim();
                 console.log("qrtoken", playerId, token);
                 if (!token) return;
