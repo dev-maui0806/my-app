@@ -2904,6 +2904,7 @@
             console.log("url", url);
             if (url.pathname.startsWith("/player/")) {
                 console.log("player path detected");
+                console.log("url pathname", url.pathname);
                 const playerId = url.pathname.split("/").pop();
                 const token = url.searchParams.get("token")?.trim();
                 console.log("qrtoken", playerId, token);
@@ -2913,6 +2914,8 @@
 
                 try {
                     const res = await fetch(endpoint);
+                    const text = await res.text();
+                    console.log("QR response status", res.status, text);    
                     const data = await res.json();
 
                     if (res.ok && data.player) {
