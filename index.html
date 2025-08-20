@@ -2916,7 +2916,7 @@
                     const res = await fetch(endpoint);
                     const text = await res.text();
                     console.log("QR response status", res.status, text);    
-                    const data = await res.json();
+                    const data = JSON.parse(text || "{}");
 
                     if (res.ok && data.player) {
                         openModalPlayer(data.player);
