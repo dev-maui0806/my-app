@@ -535,8 +535,8 @@
 
         .qr-box {
             position: relative;
-            width: 72px;
-            height: 72px;
+            width: 150px;
+            height: 150px;
             margin-top: 8px;
             margin-left: 50%;
             transform: translateX(-50%);
@@ -671,6 +671,30 @@
 
         .confirm-box button:hover {
             background-color: #692fc5;
+        }
+
+        .playerModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .player-modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            width: 400px;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
         }
 
         @keyframes fadeIn {
@@ -1164,6 +1188,7 @@
                 </div>
             </div>
         </div>
+
     </div>
     <!-- Add Team Modal -->
     <div class="modal" id="addTeamModal">
@@ -1196,6 +1221,19 @@
             </form>
         </div>
     </div>
+
+    <!-- Add player detail Modal -->
+
+    <div id="playerModal" class="playerModal" style="display:none;">
+        <div class="player-modal-content">
+            <span class="close-btn" onclick="closeModalPlayer()">&times;</span>
+            <h2 id="modal-name"></h2>
+            <p id="modal-position"></p>
+            <p id="modal-age"></p>
+            <p id="modal-value"></p>
+        </div>
+    </div>
+
     <script>
         // Global state management
 
@@ -1933,7 +1971,7 @@
                     </div>
                 `).join('');
 
-                   renderPlayerQRCodes(players)
+                    renderPlayerQRCodes(players)
                 }
 
                 initializeSearch();
@@ -2861,6 +2899,51 @@
             }
         }
 
+        async function checkForScannedPlayer() {
+            const url = new URL(window.location.href);
+            console.log("url", url);
+            if (url.pathname.startsWith("/player/")) {
+                console.log("player path detected");
+                const playerId = url.pathname.split("/").pop();
+                const token = url.searchParams.get("token")?.trim();
+                console.log("qrtoken", playerId, token);
+                if (!token) return;
+
+                const endpoint = `https://fnh8nq5lb3.execute-api.us-east-2.amazonaws.com/dev/api/playerId/${encodeURIComponent(playerId)}?token=${encodeURIComponent(token)}`; // <<< encode!
+
+                try {
+                    const res = await fetch(endpoint);
+                    const data = await res.json();
+
+                    if (res.ok && data.player) {
+                        openModalPlayer(data.player);
+                    } else {
+                        alert("Authentication failed: " + (data.error || "Unknown error"));
+                    }
+                } catch (err) {
+                    console.error("Error fetching player:", err);
+                }
+            }
+        }
+
+        function openModalPlayer(player) {
+            document.getElementById("modal-name").innerText = player.name;
+            document.getElementById("modal-position").innerText = "Position: " + (player.position || "N/A");
+            document.getElementById("modal-age").innerText = "Age: " + (player.age || "N/A");
+            document.getElementById("modal-value").innerText = "Value: £" + (player.value || "N/A");
+            document.getElementById("playerModal").style.display = "flex";
+        }
+
+        function closeModalPlayer() {
+            document.getElementById("playerModal").style.display = "none";
+        }
+
+
+        // Run check on page load
+        checkForScannedPlayer();
+
+
+
         // Hook into signup to show confirmation UI on success
         // if (typeof window.signup === 'function') {
         //     const origSignup = window.signup;
@@ -2976,17 +3059,17 @@ if (typeof window.signup === 'function') {
 </script> -->
 
     <script>
-        const BASE_URL = "https://main.d12cco7yw57lzm.amplifyapp.com/qr";
+        const BASE_URL = "https://main.d12cco7yw57lzm.amplifyapp.com/player";
 
         function qrPayloadFor(player) {
             const raw = `${player.playerId}:${Date.now()}`;
-            const token = btoa(raw);  // base64 encode
-            return `${BASE_URL}?token=${encodeURIComponent(token)}`;
+            const token = btoa(raw);
+            return `${BASE_URL}/${encodeURIComponent(player.playerId)}?token=${encodeURIComponent(token)}`;
         }
 
         function renderPlayerQRCodes(players) {
             console.log("qr", players);
-            
+
             players.forEach(player => {
                 const card = document.getElementById(`player-${player.playerId}`);
                 if (!card) return;
@@ -2995,8 +3078,8 @@ if (typeof window.signup === 'function') {
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: qrPayloadFor(player),
-                        width: 72,
-                        height: 72,
+                        width: 150,
+                        height: 150,
                         colorDark: "#000000",
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.M
