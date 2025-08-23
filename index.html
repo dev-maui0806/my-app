@@ -2946,26 +2946,7 @@
             initAuth();
         });
 
-        // Ensure confirmation section exists on page load
-        // document.addEventListener('DOMContentLoaded', function () {
 
-        //     if (!document.getElementById('confirmationSection')) {
-        //         const signupForm = document.getElementById('signupForm') || document.body;
-        //         const confirmationDiv = document.createElement('div');
-        //         confirmationDiv.id = 'confirmationSection';
-        //         confirmationDiv.style.display = 'none';
-        //         confirmationDiv.style.marginTop = '20px';
-        //         confirmationDiv.innerHTML = `
-        //     <h3>Confirm Your Account</h3>
-        //     <label for="confirmCode">Confirmation Code:</label>
-        //     <input type="text" id="confirmCode" placeholder="Enter the code from your email">
-        //     <button type="button" onclick="confirmSignup()">Confirm Signup</button>
-        //     <button type="button" onclick="resendConfirmationCode()">Resend Code</button>
-        //     `;
-        //         signupForm.insertAdjacentElement('afterend', confirmationDiv);
-        //     }
-
-        // });
 
         async function confirmSignup() {
             const email = document.getElementById('signupEmail').value.trim();
@@ -3062,126 +3043,11 @@
             document.getElementById("playerModal").style.display = "none";
         }
 
-
-        // Run check on page load
+        
         checkForScannedPlayer();
 
-
-
-        // Hook into signup to show confirmation UI on success
-        // if (typeof window.signup === 'function') {
-        //     const origSignup = window.signup;
-        //     window.signup = async function () {
-        //         try {
-        //             const result = await origSignup.apply(this, arguments);
-        //             console.log('Signup result:', result);
-        //             const confirmationEl = document.getElementById('confirmationSection');
-        //             if (confirmationEl) confirmationEl.style.display = 'block';
-        //             return result;
-        //         } catch (err) {
-        //             throw err;
-        //         }
-        //     };
-        // }
     </script>
-    <!-- Confirmation Code UI
-<div id="confirmationSection" style="display:none; margin-top:20px;">
-  <h3>Confirm Your Account</h3>
-  <label for="confirmCode">Confirmation Code:</label>
-  <input type="text" id="confirmCode" placeholder="Enter the code from your email">
-  <button type="button" onclick="confirmSignup()">Confirm Signup</button>
-  <button type="button" onclick="resendConfirmationCode()">Resend Code</button>
-</div>
-
-</body>
-
-
-<script>
-async function confirmSignup() {
-  const email = document.getElementById('signupEmail').value.trim();
-  const code = document.getElementById('confirmCode').value.trim();
-  if (!email || !code) {
-    alert('Please enter email and confirmation code');
-    return;
-  }
-  try {
-    await Amplify.Auth.confirmSignUp(email, code);
-    alert('Account confirmed! You can now log in.');
-  } catch (err) {
-    console.error('Confirm sign up error:', err);
-    alert(err.message || 'Confirmation failed');
-  }
-}
-
-async function resendConfirmationCode() {
-  const email = document.getElementById('signupEmail').value.trim();
-  if (!email) {
-    alert('Please enter your email to resend code');
-    return;
-  }
-  try {
-    await Amplify.Auth.resendSignUp(email);
-    alert('Confirmation code resent to ' + email);
-  } catch (err) {
-    console.error('Resend code error:', err);
-    alert(err.message || 'Resend failed');
-  }
-}
-
-</script>
-
-
-<script>
-async function confirmSignup() {
-  const email = document.getElementById('signupEmail').value.trim();
-  const code = document.getElementById('confirmCode').value.trim();
-  if (!email || !code) {
-    alert('Please enter email and confirmation code');
-    return;
-  }
-  try {
-    await Amplify.Auth.confirmSignUp(email, code);
-    alert('Account confirmed! You can now log in.');
-    // Optionally show login form here if exists
-    if (typeof showLoginForm === 'function') showLoginForm();
-  } catch (err) {
-    console.error('Confirm sign up error:', err);
-    alert(err.message || 'Confirmation failed');
-  }
-}
-
-async function resendConfirmationCode() {
-  const email = document.getElementById('signupEmail').value.trim();
-  if (!email) {
-    alert('Please enter your email to resend code');
-    return;
-  }
-  try {
-    await Amplify.Auth.resendSignUp(email);
-    alert('Confirmation code resent to ' + email);
-  } catch (err) {
-    console.error('Resend code error:', err);
-    alert(err.message || 'Resend failed');
-  }
-}
-
-// Hook into signup to show confirmation UI on success
-if (typeof window.signup === 'function') {
-  const origSignup = window.signup;
-  window.signup = async function() {
-    try {
-      const result = await origSignup.apply(this, arguments);
-      console.log('Signup result:', result);
-      // Only show confirmation section if signUp returns success
-      document.getElementById('confirmationSection').style.display = 'block';
-      return result;
-    } catch (err) {
-      throw err;
-    }
-  };
-}
-</script> -->
-
+    
     <script>
         const BASE_URL = "https://main.d12cco7yw57lzm.amplifyapp.com/player";
 
